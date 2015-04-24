@@ -2,6 +2,7 @@ require 'pry'
 
 class Board
   attr_accessor :cells
+  WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
 
   def initialize
     @cells = [ ]
@@ -80,22 +81,71 @@ class Human < Player
       occupy_cell(move)
     else
       puts "Invalid move. Try again"
-      make_a_move
+      make_a_move(board)
     end
   end
 end
 
 class Computer < Player
   def make_a_move(board)
-    if best_move
+    if (move = best_move(board))
+      move
+    else
+      move = board.empty_cell_positions.sample
     end
-
+    board.cells[move - 1].status = "[X]"
+    occupy_cell(move)
   end
 
   protected
 
-  def best_move
+  def best_move(board, human)
+    empty_cells = board.empty_cell_positions
+    if empty_cells.include?(5)
+      return 5
+    elsif (move = computer_winning_move(board)
+      return move
+    elsif (move = computer_defending_move(board, human))
+      return move
+    elsif (move = computer_attacking_move(board))
+      return move
+    else
+      return nil
+    end
+  end
 
+  # To complete a winning line
+  def computer_winning_move(board)
+    empty_cells = board.empty_cell_positions
+    Board::WINNING_LINES.each do |line|
+      if ((*line || occupied_cells) == 2 && (*line || empty_cells) == 1)
+        move = (line & empty_cells)
+        return move[0]
+      end
+    end
+    nil
+  end
+
+  # To form a potentially winning line
+  def computer_attacking_move(board)
+    empty_cells = board.empty_cell_positions
+    Board::WINNING_LINES.each do |line|
+      if ((*line || occupied_cells) == 1 && (*line || empty_cells) == 2)
+        move = (line & empty_cells).sample
+        return move[0]
+      end
+    end
+  end
+
+  # To block player from winning
+  def computer_defending_move(board)
+    WINNING_LINES.each do |line|
+      if (board.values_at(*line).count('[O]') == 2 && board.values_at(*line).include?('[ ]'))
+        move = (line & empty_cells(board))
+        return move[0]
+      end
+    end
+    nil
   end
 
 end
@@ -127,16 +177,15 @@ class Game
       return Game.new.new_turn
     elsif choice == 'n'
       puts "#{human.name}, see you next time!"
+      exit
     else
       puts "Invalid choice. Try again."
       start_new_round_or_quit
     end
   end
 
-  WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
-
   def winner
-    WINNING_LINES.each do |line|
+    Board::WINNING_LINES.each do |line|
       if (human.occupied_cells || line).count == 3
         return "Player"
       end
