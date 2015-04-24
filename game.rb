@@ -1,35 +1,3 @@
-# Architecture
-=begin
-
-Player
-  @score
-  win
-
-Human < Player
-  @name
-  make_a_move
-
-Computer < Player
-  make_a_move
-
-Board
-  @status
-  @empty_cells
-  display
-
-Cell
-  @position
-  @state
-
-Game
-  @board
-  @human
-  @comptuer
-  new_turn
-  check_end_game
-
-=end
-
 require 'pry'
 
 class Board
@@ -53,12 +21,12 @@ class Board
     puts
   end
 
-  def empty_cells
-    empty_cells = [ ]
+  def empty_cell_positions
+    empty_cell_positions = [ ]
     cells.each do |cell|
-      empty_cells << cell if cell.status == "[ ]"
+      empty_cell_positions << cell.position if cell.status == "[ ]"
     end
-    empty_cells
+    empty_cell_positions
   end
 
   protected
@@ -105,11 +73,9 @@ class Human < Player
   end
 
   def make_a_move(board)
-    empty_cell_positions = [ ]
-    board.empty_cells.each {|cell| empty_cell_positions << cell.position}
-    puts "#{name}, choose a cell to place your next move. #{empty_cell_positions}"
+    puts "#{name}, choose a cell to place your next move. #{board.empty_cell_positions}"
     move = gets.chomp.to_i
-    if empty_cell_positions.include?(move)
+    if board.empty_cell_positions.include?(move)
       board.cells[move - 1].status = "[O]"
       occupy_cell(move)
     else
@@ -121,6 +87,15 @@ end
 
 class Computer < Player
   def make_a_move(board)
+    if best_move
+    end
+
+  end
+
+  protected
+
+  def best_move
+
   end
 
 end
@@ -173,7 +148,7 @@ class Game
     if winner
       puts "#{winner} won!"
       play_again_or_quit
-    elsif board.empty_cells == [ ]
+    elsif board.empty_cell_positions == [ ]
       say "It's a tie."
       play_again_or_quit
     end
