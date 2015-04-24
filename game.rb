@@ -53,6 +53,14 @@ class Board
     puts
   end
 
+  def empty_cells
+    empty_cells = [ ]
+    cells.each do |cell|
+      empty_cells << cell if cell.status == "[ ]"
+    end
+    empty_cells
+  end
+
   protected
 
   def display_row(number)
@@ -75,6 +83,10 @@ class Cell
     @position = position
     @status = "[ ]"
   end
+end
+
+class Player
+
 end
 
 
@@ -118,4 +130,6 @@ class Game
   end
 end
 
-Board.new.display
+board = Board.new
+board.display
+board.empty_cells
