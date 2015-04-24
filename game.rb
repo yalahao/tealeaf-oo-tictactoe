@@ -13,7 +13,7 @@ class Board
   def display
     arr = display_array
     system 'clear'
-    puts " Tic Tac Toe"
+    puts "   Tic Tac Toe"
     puts
     puts " #{arr[0]} #{arr[1]} #{arr[2]}"
     puts " #{arr[3]} #{arr[4]} #{arr[5]}"
@@ -40,16 +40,8 @@ class Board
 end
 
 class Human
-  attr_accessor :name
-
-  def initialize
-    system 'clear'
-    puts "Hello, what is your name?"
-    #@name = gets.chomp
-  end
-
   def make_a_move(board)
-    puts "#{name}, choose a cell to place your next move. #{board.empty_cells}"
+    puts "Choose a cell from #{board.empty_cells} to place your next move."
     move = gets.chomp.to_i
     if board.empty_cells.include?(move)
       board.empty_cells.delete(move)
@@ -66,21 +58,20 @@ class Computer
     if (move = best_move(board))
       move
     else
-      move = board.empty_cell_positions.sample
+      move = board.empty_cells.sample
     end
-    board.cells[move - 1].status = "[X]"
-    occupy_cell(move)
+    board.empty_cells.delete(move)
+    board.computer_cells << move
   end
 
   protected
-=begin
-  def best_move(board, human)
-    empty_cells = board.empty_cell_positions
-    if empty_cells.include?(5)
+
+  def best_move(board)
+    if board.empty_cells.include?(5)
       return 5
-    elsif (move = computer_winning_move(board)
+    elsif (move = computer_winning_move(board))
       return move
-    elsif (move = computer_defending_move(board, human))
+    elsif (move = computer_defending_move(board))
       return move
     elsif (move = computer_attacking_move(board))
       return move
@@ -89,12 +80,24 @@ class Computer
     end
   end
 
+  protected
+
   # To complete a winning line
   def computer_winning_move(board)
-    empty_cells = board.empty_cell_positions
-    Board::WINNING_LINES.each do |line|
-      if ((*line || occupied_cells) == 2 && (*line || empty_cells) == 1)
-        move = (line & empty_cells)
+    Game::WINNING_LINES.each do |line|
+      if ((board.computer_cells & line).count == 2) && ((board.empty_cells & line).count == 1)
+        move = line & board.empty_cells
+        return move[0]
+      end
+    end
+    nil
+  end
+
+  # To block player from winning
+  def computer_defending_move(board)
+    Game::WINNING_LINES.each do |line|
+      if ((board.human_cells & line).count == 2)
+        move = board.empty_cells & line
         return move[0]
       end
     end
@@ -103,26 +106,14 @@ class Computer
 
   # To form a potentially winning line
   def computer_attacking_move(board)
-    empty_cells = board.empty_cell_positions
-    Board::WINNING_LINES.each do |line|
-      if ((*line || occupied_cells) == 1 && (*line || empty_cells) == 2)
-        move = (line & empty_cells).sample
-        return move[0]
-      end
-    end
-  end
-
-  # To block player from winning
-  def computer_defending_move(board)
-    WINNING_LINES.each do |line|
-      if (board.values_at(*line).count('[O]') == 2 && board.values_at(*line).include?('[ ]'))
-        move = (line & empty_cells(board))
-        return move[0]
+    Game::WINNING_LINES.each do |line|
+      if ((board.computer_cells & line).count == 1) && ((board.empty_cells & line).count == 2)
+        move = (board.empty_cells & line).sample
+        return move
       end
     end
     nil
   end
-=end
 end
 
 class Game
@@ -132,17 +123,17 @@ class Game
   def initialize
     @board = Board.new
     @human = Human.new
-    #@computer = Computer.new
+    @computer = Computer.new
   end
 
   def new_turn
-    system 'clear' # To move under board.display
     board.display
     human.make_a_move(board)
     board.display
     check_end_game
-    #computer.make_a_move
-    #check_end_game
+    computer.make_a_move(board)
+    board.display
+    check_end_game
     new_turn
   end
 
@@ -162,8 +153,10 @@ class Game
 
   def winner
     WINNING_LINES.each do |line|
-      if (board.human_cells || line).count == 3
+      if (board.human_cells & line).count == 3
         return "Player"
+      elsif (board.computer_cells & line).count == 3
+        return "Computer"
       end
     end
     nil
@@ -174,13 +167,10 @@ class Game
       puts "#{winner} won!"
       play_again_or_quit
     elsif board.empty_cells == [ ]
-      say "It's a tie."
+      puts "It's a tie."
       play_again_or_quit
     end
   end
-
 end
-
-#Game.new.new_turn
 
 Game.new.new_turn
