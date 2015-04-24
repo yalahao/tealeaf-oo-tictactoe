@@ -47,7 +47,10 @@ class Board
     system 'clear'
     puts " Tic Tac Toe"
     puts
-    display_row(1)
+    (1..3).each do |row|
+      display_row(row)
+    end
+    puts
   end
 
   protected
