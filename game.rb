@@ -85,7 +85,22 @@ class Cell
   end
 end
 
-class Player
+class Human
+  attr_accessor :name
+
+  def initialize
+    system 'clear'
+    puts "Hello, what is your name?"
+    @name = gets.chomp
+  end
+
+  def make_a_move(board)
+    empty_cell_positions = [ ]
+    board.empty_cells.each {|cell| empty_cell_positions << cell.position}
+
+    puts "Which cell to place your next move? Choose from #{empty_cell_positions}"
+    binding.pry
+  end
 
 end
 
@@ -96,25 +111,20 @@ class Game
   def initialize
     @board = Board.new
     @human = Human.new
-    @computer = Computer.new
+    #@computer = Computer.new
   end
 
-
-=begin
   def new_turn
     system 'clear' # To move under board.display
     board.display
-    human.make_a_move
-    check_end_game
+    human.make_a_move(board)
+    #check_end_game
     board.display
-    computer.make_a_move
-    check_end_game
+    #computer.make_a_move
+    #check_end_game
     board.display
     play_again_or_quit
   end
-
-=end
-
 
   def play_again_or_quit
     puts "Play again? (Y/N)"
@@ -130,6 +140,4 @@ class Game
   end
 end
 
-board = Board.new
-board.display
-board.empty_cells
+Game.new.new_turn
