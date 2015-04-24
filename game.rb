@@ -11,18 +11,14 @@ class Board
   end
 
   def display
-    display_array
+    arr = display_array
     system 'clear'
     puts " Tic Tac Toe"
     puts
-    3.times do
-      row = String.new
-      3.times do
-        row << display_array[0]
-        display_array.unshift
-      end
-      puts row
-    end
+    puts " #{arr[0]} #{arr[1]} #{arr[2]}"
+    puts " #{arr[3]} #{arr[4]} #{arr[5]}"
+    puts " #{arr[6]} #{arr[7]} #{arr[8]}"
+    puts
   end
 
   protected
@@ -43,34 +39,21 @@ class Board
 
 end
 
-class Player
-  attr_accessor :occupied_cells
-
-  def initialize
-    @occupied_cells = Array.new
-  end
-
-  def occupy_cell(position)
-    occupied_cells << position
-  end
-end
-
-class Human < Player
+class Human
   attr_accessor :name
 
   def initialize
     system 'clear'
     puts "Hello, what is your name?"
-    @name = gets.chomp
-    super
+    #@name = gets.chomp
   end
 
   def make_a_move(board)
-    puts "#{name}, choose a cell to place your next move. #{board.empty_cell_positions}"
+    puts "#{name}, choose a cell to place your next move. #{board.empty_cells}"
     move = gets.chomp.to_i
-    if board.empty_cell_positions.include?(move)
-      board.cells[move - 1].status = "[O]"
-      occupy_cell(move)
+    if board.empty_cells.include?(move)
+      board.empty_cells.delete(move)
+      board.human_cells << move
     else
       puts "Invalid move. Try again"
       make_a_move(board)
@@ -78,7 +61,7 @@ class Human < Player
   end
 end
 
-class Computer < Player
+class Computer
   def make_a_move(board)
     if (move = best_move(board))
       move
@@ -178,8 +161,8 @@ class Game
   end
 
   def winner
-    Board::WINNING_LINES.each do |line|
-      if (human.occupied_cells || line).count == 3
+    WINNING_LINES.each do |line|
+      if (board.human_cells || line).count == 3
         return "Player"
       end
     end
@@ -190,7 +173,7 @@ class Game
     if winner
       puts "#{winner} won!"
       play_again_or_quit
-    elsif board.empty_cell_positions == [ ]
+    elsif board.empty_cells == [ ]
       say "It's a tie."
       play_again_or_quit
     end
@@ -200,4 +183,4 @@ end
 
 #Game.new.new_turn
 
-Board.new.display
+Game.new.new_turn
