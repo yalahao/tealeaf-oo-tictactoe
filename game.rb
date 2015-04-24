@@ -1,54 +1,46 @@
 require 'pry'
 
 class Board
-  attr_accessor :cells
-  WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
+  attr_accessor :empty_cells, :human_cells, :computer_cells
 
   def initialize
-    @cells = [ ]
-    (1..9).each do |position|
-      cell = Cell.new(position)
-      cells << cell
-    end
+    @empty_cells = [ ]
+    (1..9).each {|v| empty_cells << v}
+    @human_cells = [ ]
+    @computer_cells = [ ]
   end
 
   def display
+    display_array
     system 'clear'
     puts " Tic Tac Toe"
     puts
-    (1..3).each do |row|
-      display_row(row)
+    3.times do
+      row = String.new
+      3.times do
+        row << display_array[0]
+        display_array.unshift
+      end
+      puts row
     end
-    puts
-  end
-
-  def empty_cell_positions
-    empty_cell_positions = [ ]
-    cells.each do |cell|
-      empty_cell_positions << cell.position if cell.status == "[ ]"
-    end
-    empty_cell_positions
   end
 
   protected
 
-  def display_row(row_num)
-    row = String.new
-    (0..2).each do |position|
-      row << " #{cells[(row_num - 1) * 3 + position].status}"
+  def display_array
+    arr = [ ]
+    (1..9).each do |v|
+      if empty_cells.include?(v)
+        arr << " [ ]"
+      elsif human_cells.include?(v)
+        arr << " [O]"
+      else
+        arr << " [X]"
+      end
     end
-    puts row
+    arr
   end
-end
 
-class Cell
-  attr_reader :position
-  attr_accessor :status
-
-  def initialize(position)
-    @position = position
-    @status = "[ ]"
-  end
 end
 
 class Player
@@ -98,7 +90,7 @@ class Computer < Player
   end
 
   protected
-
+=begin
   def best_move(board, human)
     empty_cells = board.empty_cell_positions
     if empty_cells.include?(5)
@@ -147,11 +139,12 @@ class Computer < Player
     end
     nil
   end
-
+=end
 end
 
 class Game
   attr_accessor :board, :human, :computer
+  WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
 
   def initialize
     @board = Board.new
@@ -205,4 +198,6 @@ class Game
 
 end
 
-Game.new.new_turn
+#Game.new.new_turn
+
+Board.new.display
