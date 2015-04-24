@@ -72,7 +72,6 @@ class Board
   end
 end
 
-
 class Cell
   attr_reader :position
   attr_accessor :status
@@ -83,13 +82,26 @@ class Cell
   end
 end
 
-class Human
+class Player
+  attr_accessor :occupied_cells
+
+  def initialize
+    @occupied_cells = Array.new
+  end
+
+  def occupy_cell(position)
+    occupied_cells << position
+  end
+end
+
+class Human < Player
   attr_accessor :name
 
   def initialize
     system 'clear'
     puts "Hello, what is your name?"
     @name = gets.chomp
+    super
   end
 
   def make_a_move(board)
@@ -99,14 +111,19 @@ class Human
     move = gets.chomp.to_i
     if empty_cell_positions.include?(move)
       board.cells[move - 1].status = "[O]"
+      occupy_cell(move)
     else
       puts "Invalid move. Try again"
       make_a_move
     end
   end
-
 end
 
+class Computer < Player
+  def make_a_move(board)
+  end
+
+end
 
 class Game
   attr_accessor :board, :human, :computer
@@ -121,11 +138,11 @@ class Game
     system 'clear' # To move under board.display
     board.display
     human.make_a_move(board)
-    #check_end_game
     board.display
+    check_end_game
     #computer.make_a_move
     #check_end_game
-    board.display
+    new_turn
   end
 
   def play_again_or_quit
@@ -141,20 +158,25 @@ class Game
     end
   end
 
-  def cells_of(player)
-    if player.class?(Human)
-      
+  WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
 
   def winner
-    WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
     WINNING_LINES.each do |line|
-      if board.values_at(*line).count('[O]') == 3
+      if (human.occupied_cells || line).count == 3
         return "Player"
-      elsif board.values_at(*line).count('[X]') == 3
-        return "Computer"
       end
     end
     nil
+  end
+
+  def check_end_game
+    if winner
+      puts "#{winner} won!"
+      play_again_or_quit
+    elsif board.empty_cells == [ ]
+      say "It's a tie."
+      play_again_or_quit
+    end
   end
 
 end
