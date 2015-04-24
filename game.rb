@@ -63,15 +63,13 @@ class Board
 
   protected
 
-  def display_row(number)
+  def display_row(row_num)
     row = String.new
     (0..2).each do |position|
-      row << " #{cells[number + position].status}"
+      row << " #{cells[(row_num - 1) * 3 + position].status}"
     end
     puts row
   end
-
-
 end
 
 
@@ -97,9 +95,14 @@ class Human
   def make_a_move(board)
     empty_cell_positions = [ ]
     board.empty_cells.each {|cell| empty_cell_positions << cell.position}
-
-    puts "Which cell to place your next move? Choose from #{empty_cell_positions}"
-    binding.pry
+    puts "#{name}, choose a cell to place your next move. #{empty_cell_positions}"
+    move = gets.chomp.to_i
+    if empty_cell_positions.include?(move)
+      board.cells[move - 1].status = "[O]"
+    else
+      puts "Invalid move. Try again"
+      make_a_move
+    end
   end
 
 end
@@ -123,14 +126,13 @@ class Game
     #computer.make_a_move
     #check_end_game
     board.display
-    play_again_or_quit
   end
 
   def play_again_or_quit
     puts "Play again? (Y/N)"
     choice = gets.chomp.downcase
     if choice == 'y'
-      return new_round
+      return Game.new.new_turn
     elsif choice == 'n'
       puts "#{human.name}, see you next time!"
     else
@@ -138,6 +140,23 @@ class Game
       start_new_round_or_quit
     end
   end
+
+  def cells_of(player)
+    if player.class?(Human)
+      
+
+  def winner
+    WINNING_LINES = [[1,2,3],[4,5,6],[7,8,9],[1,4,7],[2,5,8],[3,6,9],[1,5,9],[3,5,7]]
+    WINNING_LINES.each do |line|
+      if board.values_at(*line).count('[O]') == 3
+        return "Player"
+      elsif board.values_at(*line).count('[X]') == 3
+        return "Computer"
+      end
+    end
+    nil
+  end
+
 end
 
 Game.new.new_turn
