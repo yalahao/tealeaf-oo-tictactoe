@@ -1,5 +1,3 @@
-require 'pry'
-
 class Board
   attr_accessor :empty_cells, :human_cells, :computer_cells
 
@@ -174,3 +172,4 @@ class Game
 end
 
 Game.new.new_turn
+
