@@ -2,37 +2,37 @@ class Board
   attr_accessor :empty_cells, :human_cells, :computer_cells
 
   def initialize
-    @empty_cells = [ ]
+    @empty_cells = []
     (1..9).each {|v| empty_cells << v}
-    @human_cells = [ ]
-    @computer_cells = [ ]
+    @human_cells = []
+    @computer_cells = []
   end
 
   def display
-    arr = display_array
+    cells = cells_array
     system 'clear'
     puts "   Tic Tac Toe"
     puts
-    puts " #{arr[0]} #{arr[1]} #{arr[2]}"
-    puts " #{arr[3]} #{arr[4]} #{arr[5]}"
-    puts " #{arr[6]} #{arr[7]} #{arr[8]}"
+    puts " #{cells[0]} #{cells[1]} #{cells[2]}"
+    puts " #{cells[3]} #{cells[4]} #{cells[5]}"
+    puts " #{cells[6]} #{cells[7]} #{cells[8]}"
     puts
   end
 
   protected
 
-  def display_array
-    arr = [ ]
-    (1..9).each do |v|
-      if empty_cells.include?(v)
-        arr << " [ ]"
-      elsif human_cells.include?(v)
-        arr << " [O]"
+  def cells_array
+    cells = [ ]
+    (1..9).each do |cell|
+      if empty_cells.include?(cell)
+        cells << " [ ]"
+      elsif human_cells.include?(cell)
+        cells << " [O]"
       else
-        arr << " [X]"
+        cells << " [X]"
       end
     end
-    arr
+    cells
   end
 
 end
@@ -66,19 +66,17 @@ class Computer
 
   def best_move(board)
     if board.empty_cells.include?(5)
-      return 5
+      5
     elsif (move = computer_winning_move(board))
-      return move
+      move
     elsif (move = computer_defending_move(board))
-      return move
+      move
     elsif (move = computer_attacking_move(board))
-      return move
+      move
     else
-      return nil
+      nil
     end
   end
-
-  protected
 
   # To complete a winning line
   def computer_winning_move(board)
@@ -141,7 +139,7 @@ class Game
     if choice == 'y'
       return Game.new.new_turn
     elsif choice == 'n'
-      puts "#{human.name}, see you next time!"
+      puts "See you next time!"
       exit
     else
       puts "Invalid choice. Try again."
